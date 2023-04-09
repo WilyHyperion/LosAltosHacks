@@ -2,12 +2,12 @@
 let dpi = window.devicePixelRatio;
 ///enemy setup
 let Enemies = [];
-
+let BossFight = false;
 let enemycap = 70;
 let nextRep = 0;
 let points = 0;
-const EnemyTypes = ["Fast", "Easy", "PowerCell", "Rouge", "Brute", "Basic"]
-const MatchingFrameAmounts = [5, 4, 6, 8, 4, 8]
+const EnemyTypes = ["Fast", "Easy", "PowerCell", "Rouge", "Brute", "Basic", "Boss"]
+const MatchingFrameAmounts = [5, 4, 6, 8, 4, 8, 1]
 let FrameMap = new Map();
 function initFrames(){
     for(let i = 0; i < EnemyTypes.length; i++){
@@ -23,6 +23,10 @@ function initFrames(){
         FrameMap.set(EnemyTypes[i], frames);
     }
 }
+
+//let bgMusic = new sound("../music/Aquarium-Fever.mp3");
+//      bgMusic.play();
+
 function ShowEndScreen(){
     GameContext.fillStyle = "black";
     GameContext.fillRect(0, 0, GameCanvas.width, GameCanvas.height);
@@ -124,7 +128,19 @@ for(let i = 1; i <= 4; i++){
 }
 
 
-
+function BossFightTick(){
+    for(let e =0; e < Enemies.length; e++){
+            if(Enemies[e].boss == undefined){
+                Enemies.splice(e, 1);
+            }
+            else
+            {
+                if(e.ai!= undefined){
+            e.ai(); 
+                }
+        }
+    }
+}
 let player = null ;
 let GameContext = null;
 let GameCanvas = null;
@@ -168,8 +184,18 @@ player = {
      GameContext.imageSmoothingEnabled = false;
      
     function Update() {
-        
+        try {
+            GameContext.restore();
+        }catch(e){
+            console.log(e);
+        }
+        if(BossFight){
+            BossFightTick();
+            //TODO
+        }
+        else{
         TickGame(); 
+        }
         if(player.hp < 0){
             ShowEndScreen();
             return; 
@@ -209,7 +235,6 @@ function DrawPowerUps(){
     }
 }
 function UpdatePlayer() {
-    
     if (downThisTick[97] || downThisTick[37] || downThisTick[65]) {
         player.x -= player.speed;
     }
@@ -332,8 +357,39 @@ function DrawPlayer() {
 function ResetKeys() {
     downThisTick = [];
 }
+function ScreenShake(amount){
+    GameContext.save();
+    GameContext.translate(Math.random() * amount - amount / 2, Math.random() * amount - amount / 2);
+}
+function BossAI() {
+    this.timer++;
+    if(this.timer > 60 * 4 && this.timer < 60 * 6){
+        this.velocity = [0, 0];
+        ScreenShake(10);
+    }
+    if(this.timer > 60 * 6){
+    }
+}
 let tick = 0;
 function TickGame() {
+    if(points > 20){
+        //TODO update
+        Enemies = [];
+       BossFight = true;
+       let  boss = CreateEnemy(); 
+       boss.boss = true;
+       boss.sprite = "Boss";
+       boss.x = GameCanvas.width;
+        boss.y = GameCanvas.height / 2;
+        boss.width = GameCanvas.width * 0.1;
+        boss.height = GameCanvas.width * 0.1;
+        boss.velocity = [-1, 0];
+        boss.hp = 100;
+        boss.timer = 0; 
+        boss.damage = 10;
+        boss.color = "red";
+        boss.ai = BossAI;
+    }
     tick++;
     if (tick % 60 == 0) {
         points++;
