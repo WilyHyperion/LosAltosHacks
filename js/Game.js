@@ -314,6 +314,7 @@ function UpdateEnemies() {
         if(Enemies[i] == undefined){
             continue;
         }
+        for (let j = 0; j < Enemies.length; j++) {
         
         Enemies[i].x += Enemies[i].velocity[0];
         Enemies[i].y += Enemies[i].velocity[1];
@@ -347,10 +348,11 @@ function UpdateEnemies() {
                     Enemies[j].y += 1;
                 }
                 else {
-                    Enemies[j].y -= 1;
+                  Enemies[j].y -= 1;
+                  
                 }
             }
-        }
+        } 
             
         
     }
@@ -546,6 +548,19 @@ function TickGame() {
             e.color = "red";
             e.ai =  PowercellAI;
             e.timer =  0;
+    }if (Math.random() < 0.00123) {
+        let e = CreateEnemy();
+        e.framecount = 4;
+        e.sprite = "Bubble";
+        e.damage =  0;
+            e.x = Math.random() * GameCanvas.width;
+            e.y = Math.random() * GameCanvas.height;
+            e.width = GameCanvas.width * 0.017,
+            e.height = GameCanvas.width * 0.017;
+            e.velocity = [Math.random() * 2 - 1, Math.random() * 2 - 1],
+            e.color = "blue";
+            e.ai =  PowercellAI;
+            e.timer =  0;
     }
     //dispersal powerup
     if (Math.random() < 0.0007) {
@@ -707,6 +722,17 @@ function EasyAI() {
         //if we have waited for 240 or more ticks,
         this.velocity[0] = (player.x - this.x); //get the diffrence
         this.velocity[1] = (player.y - this.y);
+        norm(this.velocity);//normalize the vector, so it shows the direction but not the length
+        this.timer = 0;  //reset the timer
+    }
+}function BubbleAI() {
+    this.rotation = RotationFromVelocity(this.velocity);
+    
+    this.timer++;//increase the amount ticks we have been waiting
+    if (this.timer > 240) {
+        //if we have waited for 240 or more ticks,
+        this.velocity[0] = 0; //get the diffrence
+        this.velocity[1] = -3;
         norm(this.velocity);//normalize the vector, so it shows the direction but not the length
         this.timer = 0;  //reset the timer
     }
