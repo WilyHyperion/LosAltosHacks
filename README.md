@@ -1,4 +1,4 @@
-# Aquarium Fever
+# Aquarium Evasion
 
 A game about a fish pellet who is running away from hungry fish.
 
