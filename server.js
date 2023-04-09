@@ -19,9 +19,12 @@ app.get('/img/:filename', (req, res) => {
     res.sendFile(__dirname + '/Img/' + req.params.filename);
 });
 app.get('/enemy/:type/:filename', (req, res) => {
-    console.log(req.params.type);
     res.sendFile(__dirname + '/enemy/' + req.params.type + '/'+ req.params.filename);
 });
+app/get('/score', (req, res) => {
+    res.sendFile(__dirname + '/score.html');
+});
+
 app.get('/powerup/:filename', (req, res) => {
     res.sendFile(__dirname + '/powerup/' + req.params.filename);
 });

@@ -2,9 +2,51 @@
 let dpi = window.devicePixelRatio;
 ///enemy setup
 let Enemies = [];
-let enemycap = Math.random() * 100;
+
+let enemycap = 70;
 let nextRep = 0;
 let points = 0;
+const EnemyTypes = ["Fast", "Easy", "PowerCell", "Rouge", "Brute", "Basic"]
+const MatchingFrameAmounts = [5, 4, 6, 8, 4, 8]
+let FrameMap = new Map();
+function initFrames(){
+    for(let i = 0; i < EnemyTypes.length; i++){
+        let frames = [undefined];
+        for(let j = 1; j <= MatchingFrameAmounts[i]; j++){
+            
+            let frame = new Image();
+            frame.src = "enemy/" + EnemyTypes[i]+  "/" + EnemyTypes[i] + j + ".png";
+            frame.onload = function(){
+                frames.push(frame);
+            }
+        }
+        FrameMap.set(EnemyTypes[i], frames);
+    }
+}
+function ShowEndScreen(){
+    GameContext.fillStyle = "black";
+    GameContext.fillRect(0, 0, GameCanvas.width, GameCanvas.height);
+    GameContext.fillStyle = "white";
+    GameContext.font = "30px Arial";
+    GameContext.fillText("Game Over", GameCanvas.width / 2, GameCanvas.height / 2);
+    GameContext.fillText("Score: " + points, GameCanvas.width / 2, GameCanvas.height / 2 + 30);
+    GameContext.fillText("Press R to restart", GameCanvas.width / 2, GameCanvas.height / 2 + 60);
+    GameContext.fillText("Press H to submit to the scoreboard", GameCanvas.width / 2, GameCanvas.height / 2 + 90);
+    downThisTick = {};
+    window.addEventListener('keydown', function(e){
+        if(e.keyCode == 82){
+            location.reload();
+        }
+        if(e.keyCode == 72){
+            this.localStorage.setItem("score", points);
+            window.location.href = "http://localhost:3000/submit/";
+
+        }
+
+    });
+}
+initFrames();
+console.log(FrameMap);
 function CreateEnemy(){
     //checks here
     if (Enemies.length < enemycap){
@@ -102,13 +144,13 @@ window.addEventListener('DOMContentLoaded', function() {
     
     GameCanvas = document.getElementById("game");
 GameContext = GameCanvas.getContext("2d");
+let cavArea = GameCanvas.width * GameCanvas.height;
 player = {
     iframes: 0,
     x: 0,
     y: 0,
-    width: 70,//60GameCanvas.width * 0.023,
-    height: 60,//GameCanvas.width * 0.023,
-    height: 30,
+    width:  cavArea / 1000,
+    height: cavArea / 1000,
     speed: 4,
     color: "blue",
     hp : 100,
@@ -126,11 +168,16 @@ player = {
      GameContext.imageSmoothingEnabled = false;
      
     function Update() {
+        
         TickGame(); 
+        if(player.hp < 0){
+            ShowEndScreen();
+            return; 
+        }
         UpdatePowerups();
         UpdatePlayer();
         UpdateEnemies();
-        Draw_UI(GameContext, player);
+
         player.color = "blue";
         GameContext.clearRect(0, 0, GameCanvas.width, GameCanvas.height);
         GameContext.fillStyle = "white";
@@ -138,6 +185,7 @@ player = {
         DrawEnemies();
         DrawPlayer();
         DrawPowerUps(); 
+        Draw_UI(GameContext, player);
         requestAnimFrame(function() {
             Update();
           });
@@ -150,7 +198,6 @@ player = {
         };
         
       })();
-      
       Update();
         
 
@@ -162,11 +209,7 @@ function DrawPowerUps(){
     }
 }
 function UpdatePlayer() {
-    if(player.hp < 0){
-        alert("You died");
-        window.location.reload();
-        
-    }
+    
     if (downThisTick[97] || downThisTick[37] || downThisTick[65]) {
         player.x -= player.speed;
     }
@@ -179,6 +222,7 @@ function UpdatePlayer() {
     if (downThisTick[115] || downThisTick[40] || downThisTick[83]) {
         player.y += player.speed;
     }
+    player.iframes--;
     SnapPlayerInside();
     UpdatePlayerPowerups();
 
@@ -188,7 +232,7 @@ function UpdatePlayerPowerups(){
         player.currentPowerups[i].pickup();
     }
 }
-function SnapPlayerInside() {
+function    SnapPlayerInside() {
     if (player.x < 0) {
         player.x = 0;
 
@@ -235,9 +279,9 @@ function CheckForCollisions() {
             if (Enemies[i].y + Enemies[i].height > player.y && Enemies[i].y < player.y + player.height) {
                 if (player.iframes <= 0) {
                     player.hp -= Enemies[i].damage;
-                    player.iframes = 60 * 3; 
+                    player.iframes = 60 * 1; 
                 }
-                else { player.iframes--; }
+                
             }
         }
     }
@@ -292,7 +336,7 @@ function TickGame() {
         points++;
     }
     //basic enemy   
-    if (Math.random() < 0.001) {
+    if (Math.random() < 0.004) {
         
         let e = CreateEnemy();
             e.framecount = 7;   
@@ -337,11 +381,10 @@ function TickGame() {
         
     }
     //brute enemy   
-    if (Math.random() < 0.0025 && player.hp > 20) {
+    if (Math.random() < 0.0025 && player.hp > 10) {
         let e = CreateEnemy();
             e.framecount = 4;
             e.sprite = "Brute";
-
             e.damage =  30;
             e.x = Math.random() * GameCanvas.width;
             e.y = Math.random() * GameCanvas.height;
@@ -368,7 +411,7 @@ function TickGame() {
             e.timer =  0;
     }
     //dispersal powerup
-    if (Math.random() < 0.001) {
+    if (Math.random() < 0.0007) {
         let e = CreatePowerup();
             e.frame = 1;
             e.framecount = 1;
@@ -378,6 +421,19 @@ function TickGame() {
             e.width = GameCanvas.width * 0.023
             e.height =  GameCanvas.width * 0.023;
             e.pickup =  DispersalPU;
+            e.timer =  0;
+    }
+    //health powerup
+    if (Math.random() < 0.001 && player.hp < 35) {
+        let e = CreatePowerup();
+            e.frame = 1;
+            e.framecount = 1;
+            e.sprite = "Health";
+            e.x = Math.random() * GameCanvas.width;
+            e.y = Math.random() * GameCanvas.height;
+            e.width = GameCanvas.width * 0.023
+            e.height =  GameCanvas.width * 0.023;
+            e.pickup =  HealthPU;
             e.timer =  0;
     }
     
@@ -405,20 +461,26 @@ function DrawEnemyImage(e) {
         e.framecounter = 0;
         e.frame++;
     }
-
     if (e.frame > e.framecount) {
         e.frame = 1;
     }
-    GameContext.save();
-    let base_image = new Image();
-    base_image.src = 'enemy/' + e.sprite + '/' + e.sprite + e.frame + '.png';
     
+    GameContext.save();
+    console.log(e.sprite);
+    let base_image = FrameMap.get(e.sprite)[e.frame];
+    
+    console.log(e.rotation);
     if(e.rotation != undefined){
         GameContext.translate(GameCanvas.width/2,GameCanvas.height/2);
-        GameContext.rotate(Math.PI/ 180 * e.rotation);
+        console.log(e.rotation);
+        GameContext.rotate(e.rotation);
     }
-
+    if(base_image == undefined){
+        console.log(e.sprite);
+        
+    }else{
     GameContext.drawImage(base_image, e.x, e.y, e.width, e.height);
+    }
     GameContext.restore();
 }
 
@@ -484,6 +546,9 @@ function PowercellAI() {
 ///follow player every 4 seconds
 ///easy enemies that are spawned from the powercell
 function EasyAI() {
+    this.rotation = RotationFromVelocity(this.velocity);
+    
+    console.log(this.rotation);
     this.timer++;//increase the amount ticks we have been waiting
     if (this.timer > 240) {
         //if we have waited for 240 or more ticks,
@@ -513,21 +578,30 @@ function ConfusedAI() {
 
 
 function DispersalPU(){
-    console.log(this.timer);
     this.timer++;//increase the amount ticks we have been waiting
     if (this.timer > 60*5) {
 
-        console.log(player.Powerups);
         player.currentPowerups.splice(
         player.currentPowerups.indexOf(this) , 1)  
     }
 }
 
+function HealthPU(){
+    this.timer++;//increase the amount ticks we have been waiting
+    if (this.timer > 60*5) {
 
-function Draw_UI(){
+        player.currentPowerups.splice(
+        player.currentPowerups.indexOf(this) , 1)  
+    }
+    player.hp =+ 30;
+}
+
+
+function Draw_UI(_, _){
     GameContext.fillStyle = "red";
-    GameContext.font = "30px Arial";
-    //  GameContext.fillText("Score: " + score, 10, 50);
-    GameContext.fillText("Health: " + player.health, 10, 100);
-    GameContext.fillText("Powerups: " + Powerups.length, 10, 150);
+    GameContext.font = "30px Quantico";
+    GameContext.fillText("Score: " + points, 0, 40);
+    GameContext.fillRect(0,0 , player.hp * 10,10 );
+    GameContext.fillStyle = "blue";
+    GameContext.fillRect(0,10    , (player.iframes/ 60) * player.maxHp * 10 ,10 );
 }
