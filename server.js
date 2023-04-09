@@ -3,7 +3,7 @@ let app = require('express')();
 app.get('/', (req, res) => {
    res.sendFile(__dirname + '/index.html');
 });
-app.get('/play', (req, res) => {
+app.get('/game', (req, res) => {
     res.sendFile(__dirname + '/game.html');
 });
 
@@ -16,8 +16,8 @@ app.get('/js/:filename', (req, res) => {
 app.get('/img/:filename', (req, res) => {
     res.sendFile(__dirname + '/Img/' + req.params.filename);
 });
-app.get('/enemy/:filename', (req, res) => {
-    res.sendFile(__dirname + '/enemy/' + req.params.filename);
+app.get('/enemy/:type/:filename', (req, res) => {
+    res.sendFile(__dirname + '/enemy/' + req.params.type + '/'+ req.params.filename);
 });
 
 

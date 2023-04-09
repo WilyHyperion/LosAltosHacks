@@ -322,15 +322,15 @@ function TickGame() {
             e.sprite = "Dispersal";
             e.x = Math.random() * GameCanvas.width;
             e.y = Math.random() * GameCanvas.height;
-            width: 30,
-            height: 30,
-            color: "red",
-            ptype: poweruptype
+      e.width = 30;
+        e.height = 30;
+        e.color = "red";
+      e.ptype = poweruptype;
 
     }
     
 }
-}
+
 function norm(v) {
     let len = Math.sqrt(v[0] * v[0] + v[1] * v[1]);
     v[0] /= len;
@@ -359,7 +359,7 @@ function DrawEnemyImage(e) {
         e.frame = 1;
     }
     let base_image = new Image();
-    base_image.src = 'enemy/' + e.sprite + e.frame + '.png';
+    base_image.src = 'enemy/' + e.sprite + '/' + e.sprite + e.frame + '.png';
     GameContext.drawImage(base_image, e.x, e.y, e.width, e.height);
 }
 ///follow player every second
