@@ -2,12 +2,14 @@
 let dpi = window.devicePixelRatio;
 ///enemy setup
 let Enemies = [];
+
+let tick = 0;
 let BossFight = false;
-let enemycap = 70;
+let enemycap = 200;
 let nextRep = 0;
-let points = 0;
-const EnemyTypes = ["Fast", "Easy", "PowerCell", "Rouge", "Brute", "Basic", "Boss"]
-const MatchingFrameAmounts = [5, 4, 6, 8, 4, 8, 1]
+let points = 1;
+const EnemyTypes = ["Fast", "Easy", "PowerCell", "Rouge", "Brute", "Basic", "Boss", "Bubble"]
+const MatchingFrameAmounts = [5, 4, 6, 8, 4, 8, 7, 4]
 let FrameMap = new Map();
 function initFrames(){
     for(let i = 0; i < EnemyTypes.length; i++){
@@ -24,8 +26,11 @@ function initFrames(){
     }
 }
 
-//let bgMusic = new sound("../music/Aquarium-Fever.mp3");
-//      bgMusic.play();
+WebFont.load({
+    google: {
+        families: ['Press+Start+2P:300,400,700']
+    }
+});
 
 function ShowEndScreen(){
     GameContext.fillStyle = "black";
@@ -43,14 +48,14 @@ function ShowEndScreen(){
         }
         if(e.keyCode == 72){
             this.localStorage.setItem("score", points);
-            window.location.href = "http://localhost:3000/submit/";
+            window.location.href = "/submit/";
 
         }
 
     });
 }
 initFrames();
-console.log(FrameMap);
+
 function CreateEnemy(){
     //checks here
     if (Enemies.length < enemycap){
@@ -129,18 +134,8 @@ for(let i = 1; i <= 4; i++){
 
 
 function BossFightTick(){
-    for(let e =0; e < Enemies.length; e++){
-            if(Enemies[e].boss == undefined){
-                Enemies.splice(e, 1);
-            }
-            else
-            {
-                if(e.ai!= undefined){
-            e.ai(); 
-                }
-        }
+    
     }
-}
 let player = null ;
 let GameContext = null;
 let GameCanvas = null;
@@ -163,10 +158,10 @@ GameContext = GameCanvas.getContext("2d");
 let cavArea = GameCanvas.width * GameCanvas.height;
 player = {
     iframes: 0,
-    x: 0,
-    y: 0,
-    width:  cavArea / 1000,
-    height: cavArea / 1000,
+    x: GameCanvas.width * Math.random() * 2 - 1,
+    y: GameCanvas.height* Math.random() * 2 - 1,
+    width:  cavArea / 600,
+    height: cavArea / 600,
     speed: 8,
     color: "blue",
     hp : 100,
@@ -187,31 +182,37 @@ player = {
         try {
             GameContext.restore();
         }catch(e){
-            console.log(e);
-        }
+           }
         if(BossFight){
             BossFightTick();
-            //TODO
-        }
+         }
         else{
         TickGame(); 
         }
-        if(player.hp < 0){
+       if (player.hp < 0 && (points == 69)||(points == 420)) {
+           windows.location("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+        } else if (player.hp < 0) {
             ShowEndScreen();
             return; 
         }
         UpdatePowerups();
         UpdatePlayer();
+        
         UpdateEnemies();
 
         player.color = "blue";
         GameContext.clearRect(0, 0, GameCanvas.width, GameCanvas.height);
-        GameContext.fillStyle = "white";
+        GameContext.fillStyle = "lightblue";
         GameContext.fillRect(0, 0, GameCanvas.width, GameCanvas.height);
+        if(BossKiller){ 
+            DrawBossKiller();
+        }
         DrawEnemies();
         DrawPlayer();
         DrawPowerUps(); 
         DrawAllLines();
+        //boss killer gets its own draw
+        
         Draw_UI(GameContext, player);
         requestAnimFrame(function() {
             Update();
@@ -230,6 +231,37 @@ player = {
 
     //setInterval(Update, 1000 / 120);
 });
+let bHP = 3
+function DrawBossKiller() {
+    GameContext.fillStyle = "green";
+    GameContext.fillRect(BossKiller.x, BossKiller.y, BossKiller.width, BossKiller.height);
+    console.log(BossKiller.velocity);
+    BossKiller.x += BossKiller.velocity[0];
+    BossKiller.y += BossKiller.velocity[1];
+    if (BossKiller.x < 0 || BossKiller.x + BossKiller.width > GameCanvas.width) {
+        BossKiller.velocity[0] *= -1;
+    }
+    if (BossKiller.y < 0 || BossKiller.y + BossKiller.height > GameCanvas.height) {
+        BossKiller.velocity[1] *= -1;
+    }
+    let Boss = Enemies.find(e => e.boss != undefined);
+    if (Boss != undefined) {
+        let x = Boss.x + Boss.width / 2;
+        let y = Boss.y + Boss.height / 2;
+        let x2 = BossKiller.x + BossKiller.width / 2;
+        let y2 = BossKiller.y + BossKiller.height / 2;
+        let dist = Math.sqrt(Math.pow(x - x2, 2) + Math.pow(y - y2, 2));
+        if (dist < 100) {
+            bHP--;
+            BossKiller = null;
+            if (bHP <= 0) {
+                BossKiller = null;
+                Enemies.splice(Enemies.indexOf(Boss), 1);
+                BossFight = false;
+            }
+        }
+    }
+   }
 function DrawPowerUps(){
     for(let v of Powerups){
         DrawPowerupImage(v);
@@ -314,9 +346,8 @@ function UpdateEnemies() {
         if(Enemies[i] == undefined){
             continue;
         }
-        for (let j = 0; j < Enemies.length; j++) {
-        
         Enemies[i].x += Enemies[i].velocity[0];
+
         Enemies[i].y += Enemies[i].velocity[1];
         if(PlayerHasPowerup("Dispersal")){
             Enemies[i].velocity = [Math.random() * 2 - 1, Math.random() * 2 - 1];
@@ -326,51 +357,66 @@ function UpdateEnemies() {
             Enemies[i].ai();
         }
         if (Enemies[i].x > GameCanvas.width || Enemies[i].x < 0 || Enemies[i].y > GameCanvas.height || Enemies[i].y < 0) {
+            if(Enemies[i].boss == undefined){
             Enemies.splice(i, 1);
+            }
+            else{
+                if(Enemies[i].x < 0){
+                    Enemies[i].x = 0;
+                }
+                if(Enemies[i].x > GameCanvas.width){
+                    Enemies[i].x = GameCanvas.width;
+                    
+                }
+                if(Enemies[i].y < 0){
+                    Enemies[i].y = 0;
+                }
+                if(Enemies[i].y > GameCanvas.height){
+                    Enemies[i].y = GameCanvas.height;
+                }
+
+            }
         }
         let e = Enemies[i];
-        //check if enemy is on an enemy
-    try {
+        //use drawRotated to rotate image based on where the player is
         
-      for (let j = 0; j < Enemies.length; j++) {
-        if (Enemies[j] == undefined) {
-            continue;
-        }
-        if (Enemies[j].x + Enemies[j].width > e.x && Enemies[j].x < e.x + e.width) {
-            if (Enemies[j].y + Enemies[j].height > e.y && Enemies[j].y < e.y + e.height) {
-                if (Enemies[j].x > e.x) {
-                    Enemies[j].x += 1;
-                }
-                else {
-                    Enemies[j].x -= 1;
-                }
-                if (Enemies[j].y > e.y) {
-                    Enemies[j].y += 1;
-                }
-                else {
-                  Enemies[j].y -= 1;
-                  
-                }
-            }
-        } 
-            
         
-    }
-    
-} catch (error) {
-        
-}
     }
     CheckForCollisions();
+    
 }
+function drawRotated(degrees, image){
+    GameCanvas.clearRect(0, 0, GameCanvas.width, GameCanvas.height);
+
+    // save the unrotated context of the canvas so we can restore it later
+    // the alternative is to untranslate & unrotate after drawing
+    GameCanvas.save();
+
+    // move to the center of the canvas
+    GameCanvas.translate(GameCanvas.width / 2, GameCanvas.height / 2);
+
+    // rotate the canvas to the specified degrees
+    GameCanvas.rotate((degrees * Math.PI) / 180);
+
+    // draw the image
+    // since the context is rotated, the image will be rotated also
+    GameCanvas.drawImage(image, -image.width / 2, -image.width / 2);
+
+    // we’re done with the rotating so restore the unrotated context
+    GameCanvas.restore();
 }
+
 function CheckForCollisions() {
     for (let i = 0; i < Enemies.length; i++) {
+        if(Enemies[i] == undefined){
+            continue;
+        }
         if (Enemies[i].x + Enemies[i].width > player.x && Enemies[i].x < player.x + player.width) {
             if (Enemies[i].y + Enemies[i].height > player.y && Enemies[i].y < player.y + player.height) {
                 if (player.iframes <= 0) {
+                    
                     player.hp -= Enemies[i].damage;
-                    player.iframes = 60 * 1; 
+                    player.iframes = 30; 
                 }
                 
             }
@@ -407,7 +453,7 @@ function DrawEnemies() {
         DrawEnemyImage(Enemies[i]);
     }
 }
-
+let BossKiller = undefined;
 
 function DrawPlayer() {
     GameContext.fillStyle = "red";
@@ -424,42 +470,133 @@ function ScreenShake(amount){
     GameContext.save();
     GameContext.translate(Math.random() * amount - amount / 2, Math.random() * amount - amount / 2);
 }
+let attack = Math.round(Math.random() * 3);
+let numAttacks = 0;
+let start = Math.round(Math.random() * 360);
+let dirctoplayerO = [0, 0];
+let BossDif = 90;
 function BossAI() {
+    if(this.pTimer == undefined){
+        this.pTimer = 0;
+    }
     this.timer++;
     if(this.timer > 60 * 4 && this.timer < 60 * 6){
         this.velocity = [0, 0];
         ScreenShake(10);
     }
     if(this.timer > 60 * 6){
-        if(this.timer % 60 == 0){
-            let attack = Math.round(Math.random() * 3);
+        if(this.timer % BossDif == 0){
+            numAttacks++;
+            this.velocity = [0, 0];
+             attack = Math.round(Math.random() * 3);
+             this.pTimer = 0;
+                if(numAttacks > 3){
+                        console.log("powerup");
+                        let p = CreatePowerup();
+                        p.x = this.x;
+                        p.sprite = "BossKiller"
+                        p.y = this.y;
+                        p.pickup = function(){
+                            player.currentPowerups.splice(player.currentPowerups.indexOf(this), 1);
+                            let Boss = Enemies.find(e => e.boss != undefined);
+                            if(Boss != undefined){
+                            let dirc = [Boss.x - this.x, Boss.y - this.y];
+                            norm(dirc);
+                            dirc[0] *= 4;
+                            dirc[1] *= 4;
+                            BossKiller = {
+                                timer: 0,
+                                x : this.x,
+                                y : this.y,
+                                width : 50,
+                                height : 50,
+                                color : "red",
+                                velocity : dirc,
+                            }
+                            }
+                            
+                            }
+                        Powerups.push(p);
+                    }
+                
+             }
+            this.pTimer++;
+            console.log(attack);
             switch(attack){
                 case 0:
-                    //TODO
+                    if(this.pTimer == 1){
+                    DrawLine(this.x + this.width/2, this.y + this.height/2, player.x, player.y, "red", 40);
+                    dirctoplayerO = [player.x - this.x, player.y - this.y];
+                    }
+                    else if(this.pTimer  == 20){
+                        
+                    this.velocity = [0, 0];
+                    norm(dirctoplayerO);
+                    this.velocity = [dirctoplayerO[0] * 10, dirctoplayerO[1] * 10];
+                    }
+                    //Simple Dash
+
                     break;
                 case 1:
-                    //TODO
+                    if(this.pTimer == 1){
+                         start = Math.round(Math.random() * 360);
+                       for(let i = 0; i < 360; i+= 30){
+                        let angle = (start + i) * Math.PI / 180;
+                        let x = Math.cos(angle) * 500;
+                        let y = Math.sin(angle) * 500;
+                        DrawLine(this.x + this.width/2, this.y + this.height/2, this.x + this.width/2 + x, this.y + this.height/2 + y, "red", 40);
+                    }
+                }
+                else if (this.pTimer > 30 && this.pTimer % 30 == 0){
+                    for(let i = 0; i < 360; i+= 30){
+                        let angle = (start + i) * Math.PI / 180;
+                        let x = Math.cos(angle) * 500;
+                        let y = Math.sin(angle) * 500;
+                        let vector = [x, y];
+                        norm(vector);
+                        FireProjectile(this.x + this.width/2, this.y + this.height/2, vector, 2, 20)
+                    }
+                }
                     break;
                 case 2:
-                    //TODO
+                    let vectoPlayer = [player.x - this.x, player.y - this.y];
+                    norm(vectoPlayer);
+                    if(this.pTimer % 20 == 0){
+                        FireProjectile(this.x   + this.width/2, this.y + this.height/2, vectoPlayer,2, 20)
+                    }
                     break;
                 case 3:
-                    //TODO
+                    if(this.pTimer == 1){
+                    for(let i = -30; i < 40; i+= 30){
+                        let angle = i * Math.PI / 180;
+                        let x = Math.cos(angle) * 500;
+                        let y = Math.sin(angle) * 500;
+                        let vectoPlayer = [player.x - this.x, player.y - this.y];
+                        norm(vectoPlayer);
+                        x += vectoPlayer[0] * 500;
+                        y += vectoPlayer[1] * 500;
+                        let vector = [x, y];
+                        norm(vector);
+                        FireProjectile(this.x + this.width/2, this.y + this.height/2, vector, 2, 20)
+                    }
+                }
                     break;
         }
     }
 
 }
-}
-let tick = 0;
 function TickGame() {
-    if(points > 20){
+    if(points % 40 == 0){
+        points++;
+        BossDif -= 5;
+        bHP = 3;
         //TODO update
         Enemies = [];
        BossFight = true;
        let  boss = CreateEnemy(); 
        boss.boss = true;
        boss.sprite = "Boss";
+       boss.framecount = 7;
        boss.x = GameCanvas.width;
         boss.y = GameCanvas.height / 2;
         boss.width = GameCanvas.width * 0.1;
@@ -467,12 +604,12 @@ function TickGame() {
         boss.velocity = [-1, 0];
         boss.hp = 100;
         boss.timer = 0; 
-        boss.damage = 10;
+        boss.damage = 15;
         boss.color = "red";
         boss.ai = BossAI;
     }
     tick++;
-    if (tick % 60 == 0) {
+    if (tick % 90 == 0) {
         points++;
     }
     //basic enemy   
@@ -495,7 +632,7 @@ function TickGame() {
         let e = CreateEnemy();
             e.framecount = 7;   
             e.sprite = "Rouge";  
-            e.damage =  8;
+            e.damage =  12;
             e.y = Math.random() * GameCanvas.height;
             e.width = GameCanvas.width * 0.023;
             e.height = GameCanvas.width * 0.023;
@@ -507,7 +644,7 @@ function TickGame() {
     //fast enemy   
     if (Math.random() < 0.0025) {
             let e = CreateEnemy();
-            e.damage =  10;
+            e.damage =  7;
             e.framecount = 5;
             e.sprite = "Fast";  
             e.x = Math.random() * GameCanvas.width;
@@ -550,20 +687,25 @@ function TickGame() {
             e.color = "red";
             e.ai =  PowercellAI;
             e.timer =  0;
-    }if (Math.random() < 0.00123) {
+
+            
+    }
+    /*
+    if (Math.random() < 0.05) {
         let e = CreateEnemy();
         e.framecount = 4;
         e.sprite = "Bubble";
         e.damage =  0;
             e.x = Math.random() * GameCanvas.width;
             e.y = Math.random() * GameCanvas.height;
-            e.width = GameCanvas.width * 0.017,
-            e.height = GameCanvas.width * 0.017;
+            e.width = GameCanvas.width * 0.023,
+            e.height = GameCanvas.width * 0.023;
             e.velocity = [Math.random() * 2 - 1, Math.random() * 2 - 1],
             e.color = "blue";
-            e.ai =  PowercellAI;
+            e.ai =  BubbleAI;
             e.timer =  0;
     }
+    */
     //dispersal powerup
     if (Math.random() < 0.0007) {
         let e = CreatePowerup();
@@ -618,6 +760,20 @@ function TickGame() {
     }
     
 }
+function FireProjectile(x, y, velocity, speed, damage, width = 10, height = 10) {
+    let e = CreateEnemy();
+    speed *= 4;
+    e.x = x;
+    e.y = y;
+    velocity[0] *= speed;
+    velocity[1] *= speed;
+    e.velocity = velocity;
+    e.speed = speed * 5;
+    e.damage = damage;
+    e.width = width;
+    e.height = height;
+
+}
 function norm(v) {
     let len = Math.sqrt(v[0] * v[0] + v[1] * v[1]);
     v[0] /= len;
@@ -646,18 +802,24 @@ function DrawEnemyImage(e) {
         e.frame = 1;
     }
     
-    GameContext.save();
-    let base_image = FrameMap.get(e.sprite)[e.frame];
+
+    let base_image = undefined;
+    if(e.sprite == "nothing"){
+        GameContext.fillStyle = e.color;
+        GameContext.fillRect(e.x, e.y, e.width, e.height);
+        return;
+    }
+    try {
+         base_image = FrameMap.get(e.sprite)[e.frame];
+        } catch (error) {
+          }
     if(base_image == undefined){
-        console.log(e.sprite);
         
     }else{
     GameContext.drawImage(base_image, e.x, e.y, e.width, e.height);
     }
-    GameContext.restore();
     }catch(e){
-        console.log(e);
-    }
+      }
 }
 
 ///follow player every second
@@ -705,7 +867,7 @@ function PowercellAI() {
         let e = CreateEnemy();
         e.sprite = "Easy";
         e.framecount = 4;
-        e.damage =  0;
+        e.damage =  4;
             e.x = this.x;
             e.y = this.y;
             e.width = GameCanvas.width * 0.023;
@@ -732,6 +894,7 @@ function EasyAI() {
         this.timer = 0;  //reset the timer
     }
 }
+/*
 function BubbleAI() {
     this.rotation = RotationFromVelocity(this.velocity);
     
@@ -744,6 +907,8 @@ function BubbleAI() {
         this.timer = 0;  //reset the timer
     }
 }
+*/
+
 function RotationFromVelocity(v) {
     let angle = Math.atan2(v[1], v[0]);
     return angle * 180 / Math.PI;
@@ -780,7 +945,7 @@ function HealthPU(){
     this.timer++;  //increase the amount ticks we have been waiting
     player.hp += 10;//heal player 30hp
     if (this.timer > 3) {
-        powerupsfx.play();
+        //powerupsfx.play();
         player.currentPowerups.splice(
         player.currentPowerups.indexOf(this) , 1)  
     }
@@ -790,8 +955,8 @@ function HealthPU(){
 
 function Draw_UI(_, _){
     GameContext.fillStyle = "red";
-    GameContext.font = "30px Quantico";
-    GameContext.fillText("Score: " + points, 0, 40);
+    GameContext.font = "25px 'Press Start 2P'";
+    GameContext.fillText("Score: " + points, 0, 50);
     GameContext.fillRect(0,0 , player.hp * 10,10 );
     GameContext.fillStyle = "blue";
     GameContext.fillRect(0,10    , (player.iframes/ 60) * player.maxHp * 10 ,10 );

@@ -6,7 +6,8 @@ app.use(bodyParser.json())
 let Scores = fs.readFileSync('scores.json');
 Scores = JSON.parse(Scores);
 app.get('/', (req, res) => {
-   res.sendFile(__dirname + '/index.html');
+    res.sendFile(__dirname + '/index.html');
+    
 });
 app.get('/game', (req, res) => {
     res.sendFile(__dirname + '/game.html');
@@ -24,7 +25,13 @@ app.get('/img/:filename', (req, res) => {
 app.get('/enemy/:type/:filename', (req, res) => {
     res.sendFile(__dirname + '/enemy/' + req.params.type + '/'+ req.params.filename);
 });
-
+app.post('/highscore', (req, res) => {
+    let b = ''
+    for(let i = 0; i < 1; i++){
+        b+= Scores[i].name + ' : ' + Scores[i].score;
+    }
+    res.send(b);
+});
 app.post('/addscore', (req, res) => {
     let b = req.body;
     Scores.push(b);

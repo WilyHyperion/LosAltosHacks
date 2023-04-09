@@ -20,4 +20,12 @@ This enemy moves faster than basic enemies but slower than the fast ones, it is 
 ## Powerups:
 
 ### Dispersal:
-This powerup confuses all enemies and causes them to 
+This powerup confuses all enemies and causes them to move around in place for a few seconds
+
+### Speed Upgrade:
+This is a permanent upgrade that gives you a speed boost, it stacks!!
+
+## Bosses
+
+### Big Cell
+This boss shoots pellets at you and is unpredictable, good luck :D
