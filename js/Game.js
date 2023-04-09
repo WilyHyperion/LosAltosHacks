@@ -257,6 +257,9 @@ function PlayerHasPowerup(powerup){
 }
 function UpdateEnemies() { 
     for (let i = 0; i < Enemies.length; i++) {
+        if(Enemies[i] == undefined){
+            continue;
+        }
         Enemies[i].x += Enemies[i].velocity[0];
         Enemies[i].y += Enemies[i].velocity[1];
         if(PlayerHasPowerup("Dispersal")){
@@ -355,7 +358,7 @@ function TickGame() {
         let e = CreateEnemy();
             e.framecount = 7;   
             e.sprite = "Rouge";  
-            e.damage =  1;
+            e.damage =  8;
             e.y = Math.random() * GameCanvas.height;
             e.width = GameCanvas.width * 0.023;
             e.height = GameCanvas.width * 0.023;
@@ -380,6 +383,7 @@ function TickGame() {
             e.timer =  0;
         
     }
+
     //brute enemy   
     if (Math.random() < 0.0025 && player.hp > 10) {
         let e = CreateEnemy();
@@ -423,8 +427,34 @@ function TickGame() {
             e.pickup =  DispersalPU;
             e.timer =  0;
     }
+    //speed powerup
+    if (Math.random() < 0.0007) {
+        let e = CreatePowerup();
+            e.frame = 1;
+            e.framecount = 1;
+            e.sprite = "Speed";
+            e.x = Math.random() * GameCanvas.width;
+            e.y = Math.random() * GameCanvas.height;
+            e.width = GameCanvas.width * 0.023
+            e.height =  GameCanvas.width * 0.023;
+            e.pickup =  function() {
+                player.currentPowerups.splice(
+                player.currentPowerups.indexOf(this) , 1)  
+                if(this.timer == 0){
+                player.speed += 3;
+                }
+                if(this.timer == 300){
+                    
+                    player.speed -= 3;
+                }
+                this.timer++;
+            };
+            e.timer =  0;
+    }
+
+
     //health powerup
-    if (Math.random() < 0.001 && player.hp < 35) {
+    if (Math.random() < 0.0001) {
         let e = CreatePowerup();
             e.frame = 1;
             e.framecount = 1;
@@ -466,15 +496,7 @@ function DrawEnemyImage(e) {
     }
     
     GameContext.save();
-    console.log(e.sprite);
     let base_image = FrameMap.get(e.sprite)[e.frame];
-    
-    console.log(e.rotation);
-    if(e.rotation != undefined){
-        GameContext.translate(GameCanvas.width/2,GameCanvas.height/2);
-        console.log(e.rotation);
-        GameContext.rotate(e.rotation);
-    }
     if(base_image == undefined){
         console.log(e.sprite);
         
@@ -526,7 +548,6 @@ function PowercellAI() {
     }
     if(this.velocity[0] != 0){
         if (Math.random() < 0.01) {
-             
         let e = CreateEnemy();
         e.sprite = "Easy";
         e.framecount = 4;
@@ -578,22 +599,27 @@ function ConfusedAI() {
 
 
 function DispersalPU(){
-    this.timer++;//increase the amount ticks we have been waiting
+    this.timer++;  //increase the amount ticks we have been waiting
+
+ 
+    
     if (this.timer > 60*5) {
 
         player.currentPowerups.splice(
         player.currentPowerups.indexOf(this) , 1)  
     }
+    
 }
 
 function HealthPU(){
-    this.timer++;//increase the amount ticks we have been waiting
-    if (this.timer > 60*5) {
-
+    this.timer++;  //increase the amount ticks we have been waiting
+    player.hp += 10;//heal player 30hp
+    if (this.timer > 3) {
+        powerupsfx.play();
         player.currentPowerups.splice(
         player.currentPowerups.indexOf(this) , 1)  
     }
-    player.hp =+ 30;
+
 }
 
 

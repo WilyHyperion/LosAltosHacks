@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Score Submited</title>
+</head>
+<body>
+    <script>
+        let score = localStorage.getItem("score")
+        let n = prompt("Your score is " + score + ". Enter your name to submit your score.")
+        let r = new XMLHttpRequest()
+        r.open("POST", "/addscore", true)
+        r.setRequestHeader("Content-Type", "application/json")
+        r.send(JSON.stringify({name: n, score: score}))
+        window.location = "/leaderboard"
+        
+    </script>
+</body>
+</html>

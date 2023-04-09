@@ -1,1 +1,6 @@
-var powerupsfx = sfxr.toAudio("1YgRWXcEDp7zeu8P6b9QeNLZKGjPWmNKeFk7n2zxC9K1YmQRhpEcWBaSWqZU5wU4ZJHPQRa9bpCmADxaynrN5wmLCuYD7FK3R2gfYyW3bcT3vMdmaNUBsMF5W");
+window.addEventListener("DOMContentLoaded", event => {
+    const audio = document.querySelector("audio");
+    audio.volume = 1;
+    audio.play();
+  });
+  

@@ -1,7 +1,10 @@
-const { Console } = require('console');
 
 let app = require('express')();
-
+let bodyParser = require('body-parser');
+var fs = require('fs')
+app.use(bodyParser.json())
+let Scores = fs.readFileSync('scores.json');
+Scores = JSON.parse(Scores);
 app.get('/', (req, res) => {
    res.sendFile(__dirname + '/index.html');
 });
@@ -21,7 +24,28 @@ app.get('/img/:filename', (req, res) => {
 app.get('/enemy/:type/:filename', (req, res) => {
     res.sendFile(__dirname + '/enemy/' + req.params.type + '/'+ req.params.filename);
 });
-app/get('/score', (req, res) => {
+
+app.post('/addscore', (req, res) => {
+    let b = req.body;
+    Scores.push(b);
+    Scores.sort((a, b) => {
+        return b.score - a.score;
+    });
+    fs.writeFileSync('scores.json', JSON.stringify(Scores));
+});
+app.get('/leaderboard', (req, res) => {
+    let f = fs.readFileSync('leaderboard.html');
+    let html = f.toString();
+    let li = "<ol>"
+    for (let i = 0; i < Scores.length; i++) {
+        li += '<li>' + Scores[i].name + ':' + Scores[i].score + '</li>';
+    }
+    li += "</ol>"
+    html = html.replace("{{scores}}", li);
+    res.send(html);
+  });
+
+app.get('/submit', (req, res) => {
     res.sendFile(__dirname + '/score.html');
 });
 
