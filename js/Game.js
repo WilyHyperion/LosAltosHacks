@@ -490,8 +490,13 @@ function BossAI() {
             this.velocity = [0, 0];
              attack = Math.round(Math.random() * 3);
              this.pTimer = 0;
-                if(numAttacks > 3){
-                        console.log("powerup");
+             }
+            this.pTimer++;
+            console.log(attack);
+            switch(attack){
+                case 0:
+                    
+                    if(this.pTimer == 1){
                         let p = CreatePowerup();
                         p.x = this.x;
                         p.sprite = "BossKiller"
@@ -517,20 +522,12 @@ function BossAI() {
                             
                             }
                         Powerups.push(p);
-                    }
-                
-             }
-            this.pTimer++;
-            console.log(attack);
-            switch(attack){
-                case 0:
-                    if(this.pTimer == 1){
+                       
                     DrawLine(this.x + this.width/2, this.y + this.height/2, player.x, player.y, "red", 40);
                     dirctoplayerO = [player.x - this.x, player.y - this.y];
                     }
                     else if(this.pTimer  == 20){
                         
-                    this.velocity = [0, 0];
                     norm(dirctoplayerO);
                     this.velocity = [dirctoplayerO[0] * 10, dirctoplayerO[1] * 10];
                     }
@@ -538,6 +535,8 @@ function BossAI() {
 
                     break;
                 case 1:
+                    this.velocity = [Math.random() * 2 -1, Math.random() * 2 -1];
+                  
                     if(this.pTimer == 1){
                          start = Math.round(Math.random() * 360);
                        for(let i = 0; i < 360; i+= 30){
@@ -566,6 +565,8 @@ function BossAI() {
                     }
                     break;
                 case 3:
+                    this.velocity = [Math.random() * 2 -1, Math.random() * 2 -1];
+                  
                     if(this.pTimer == 1){
                     for(let i = -30; i < 40; i+= 30){
                         let angle = i * Math.PI / 180;
