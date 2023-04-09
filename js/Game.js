@@ -383,8 +383,6 @@ function DrawEnemyImage(e) {
     }
     GameContext.save();
     let base_image = new Image();
-    GameContext.rotate(Math.PI);
-    GameContext.translate(e.x - e.width, e.y - e.height);
     base_image.src = 'enemy/' + e.sprite + e.frame + '.png';
     GameContext.drawImage(base_image, e.x, e.y, e.width, e.height);
     GameContext.restore();
