@@ -286,6 +286,29 @@ function UpdateEnemies() {
         if(Enemies[i] == undefined){
             continue;
         }
+        for (let j = 0; j < Enemies.length; j++) {
+        
+          let e = Enemies[i];
+        if (!(Enemies[j].x + Enemies[j].width > e.x && Enemies[j].x < e.x + e.width)) {
+            if (Enemies[j].y + Enemies[j].height > e.y && Enemies[j].y < e.y + e.height) {
+                if (Enemies[j].x > e.x) {
+                    Enemies[j].x += 1;
+                }
+                else {
+                    Enemies[j].x -= 1;
+                }
+                if (Enemies[j].y > e.y) {
+                    Enemies[j].y += 1;
+                }
+                else {
+                  Enemies[j].y -= 1;
+                  
+                }
+            }
+        } 
+            
+        
+    }
         
         Enemies[i].x += Enemies[i].velocity[0];
         Enemies[i].y += Enemies[i].velocity[1];
@@ -299,31 +322,9 @@ function UpdateEnemies() {
         if (Enemies[i].x > GameCanvas.width || Enemies[i].x < 0 || Enemies[i].y > GameCanvas.height || Enemies[i].y < 0) {
             Enemies.splice(i, 1);
         }
-        let e = Enemies[i];
-        //check if enemy is on an enemy
-      for (let j = 0; j < Enemies.length; j++) {
-        if (Enemies[j] == undefined) {
-            continue;
-        }
-        if (Enemies[j].x + Enemies[j].width > e.x && Enemies[j].x < e.x + e.width) {
-            if (Enemies[j].y + Enemies[j].height > e.y && Enemies[j].y < e.y + e.height) {
-                if (Enemies[j].x > e.x) {
-                    Enemies[j].x += 1;
-                }
-                else {
-                    Enemies[j].x -= 1;
-                }
-                if (Enemies[j].y > e.y) {
-                    Enemies[j].y += 1;
-                }
-                else {
-                    Enemies[j].y -= 1;
-                }
-            }
-        }
-            
         
-    }
+        //check if enemy is on an enemy
+    
     }
     CheckForCollisions();
 }
@@ -495,6 +496,19 @@ function TickGame() {
             e.color = "red";
             e.ai =  PowercellAI;
             e.timer =  0;
+    }if (Math.random() < 0.00123) {
+        let e = CreateEnemy();
+        e.framecount = 4;
+        e.sprite = "Bubble";
+        e.damage =  0;
+            e.x = Math.random() * GameCanvas.width;
+            e.y = Math.random() * GameCanvas.height;
+            e.width = GameCanvas.width * 0.017,
+            e.height = GameCanvas.width * 0.017;
+            e.velocity = [Math.random() * 2 - 1, Math.random() * 2 - 1],
+            e.color = "blue";
+            e.ai =  PowercellAI;
+            e.timer =  0;
     }
     //dispersal powerup
     if (Math.random() < 0.0007) {
@@ -656,6 +670,17 @@ function EasyAI() {
         //if we have waited for 240 or more ticks,
         this.velocity[0] = (player.x - this.x); //get the diffrence
         this.velocity[1] = (player.y - this.y);
+        norm(this.velocity);//normalize the vector, so it shows the direction but not the length
+        this.timer = 0;  //reset the timer
+    }
+}function BubbleAI() {
+    this.rotation = RotationFromVelocity(this.velocity);
+    
+    this.timer++;//increase the amount ticks we have been waiting
+    if (this.timer > 240) {
+        //if we have waited for 240 or more ticks,
+        this.velocity[0] = 0; //get the diffrence
+        this.velocity[1] = -3;
         norm(this.velocity);//normalize the vector, so it shows the direction but not the length
         this.timer = 0;  //reset the timer
     }
