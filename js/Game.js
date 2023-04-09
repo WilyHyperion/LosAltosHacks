@@ -1,18 +1,19 @@
 //get DPI
 let dpi = window.devicePixelRatio;
-
+///enemy setup
 let Enemies = [];
-let Powerups = [];
 let enemycap = 200;
+let nextRep = 0;
 let points = 0;
 function CreateEnemy(){
     //checks here
     if (Enemies.length < enemycap){
     Enemies.push({
+        rotate: 0,
         frame:1,
         framecounter: 0,
         framecount: 1,
-        spite: "nothing",
+        sprite: "nothing",
         x: Math.random() * GameCanvas.width,
         y: Math.random() * GameCanvas.height,
         width: 30,
@@ -25,8 +26,33 @@ function CreateEnemy(){
     });
     return Enemies[Enemies.length - 1];
     }
-    return Enemies[0];
+    nextRep++;
+    return Enemies[nextRep];
 }
+
+///powerup setup
+let Powerups = [];
+let powerupcap = 200;
+function CreatePowerup(){
+    //checks here
+    if (Powerups.length < powerupcap){
+    Powerups.push({
+        frame:1,
+        framecounter: 0,
+        framecount: 1,
+        sprite: "nothing",
+        x: Math.random() * GameCanvas.width,
+        y: Math.random() * GameCanvas.height,
+        width: 30,
+        height: 30,
+        color: "red",
+        ptype: poweruptype
+    });
+    return Powerups[Powerups.length - 1];
+    }
+    return Powerups[0];
+}
+
 let playerFrames = [];
 for(let i = 1; i <= 4; i++){
     let frame = new Image();
@@ -40,6 +66,7 @@ for(let i = 1; i <= 4; i++){
 console.log(playerFrames);
 
 
+
 let player = {
     iframes: 0,
     x: 0,
@@ -50,6 +77,7 @@ let player = {
     color: "blue",
     hp : 100,
     maxHp : 100,
+    currentPowerups:[]
 };
 let GameContext = null;
 let GameCanvas = null;
@@ -146,16 +174,17 @@ function CheckForCollisions() {
     for (let i = 0; i < Enemies.length; i++) {
         if (Enemies[i].x + Enemies[i].width > player.x && Enemies[i].x < player.x + player.width) {
             if (Enemies[i].y + Enemies[i].height > player.y && Enemies[i].y < player.y + player.height) {
-                player.hp -= Enemies[i].damage;
-                player.color = "orange";
-                player.iframes = 60 * 3; // 3 seconds
-                if(player.iframes > 0){ 
-                    player.iframes--;
+                if (player.iframes <= 0) {
+                    player.hp -= Enemies[i].damage;
+                    player.iframes = 60 * 3; 
                 }
+                else { player.iframes--; }
             }
         }
     }
 }
+
+
 
 function DrawPowerups() {
     for (let i = 0; i < Powerups.length; i++) {
@@ -177,7 +206,8 @@ function CheckForPowerupCollisions() {
     for (let i = 0; i < Powerups.length; i++) {
         if (Powerups[i].x + Powerups[i].width > player.x && Powerups[i].x < player.x + player.width) {
             if (Powerups[i].y + Powerups[i].height > player.y && Powerups[i].y < player.y + player.height) {
-                
+                ///add powerup to currently active powerup aray
+                player.currentPowerups.concat(Powerups[i]);
             }
         }
     }
@@ -214,8 +244,8 @@ function TickGame() {
             e.sprite = "Basic";  
             e.damage =  10;
             e.y = Math.random() * GameCanvas.height;
-            e.width = 10,
-            e.height =  10;
+            e.width = 30,
+            e.height =  30;
             e.velocity = [Math.random() * 2 - 1, Math.random() * 2 - 1],
             e.color = "green";
             e.ai =  BasicAI;
@@ -228,8 +258,8 @@ function TickGame() {
             e.sprite = "Rouge";  
             e.damage =  1;
             e.y = Math.random() * GameCanvas.height;
-            e.width = 10,
-            e.height =  10;
+            e.width =30,
+            e.height =  30;
             e.velocity = [Math.random() * 2 - 1, Math.random() * 2 - 1],
             e.color = "green";
             e.ai =  BasicAI;
@@ -243,8 +273,8 @@ function TickGame() {
             e.sprite = "Fast";  
             e.x = Math.random() * GameCanvas.width;
             e.y = Math.random() * GameCanvas.height;
-            e.width = 10,
-            e.height =  10;
+            e.width = 30,
+            e.height =  30;
             e.velocity = [Math.random() * 2 - 1, Math.random() * 2 - 1],
             e.color = "black";
             e.ai =  FastAI;
@@ -260,8 +290,8 @@ function TickGame() {
             e.damage =  30;
             e.x = Math.random() * GameCanvas.width;
             e.y = Math.random() * GameCanvas.height;
-            e.width = 30,
-            e.height =  10;
+            e.width = 60,
+            e.height =  60;
             e.velocity = [Math.random() * 2 - 1, Math.random() * 2 - 1],
             e.color = "grey";
             e.ai =  BruteAI;
@@ -271,7 +301,7 @@ function TickGame() {
     if (Math.random() < 0.05 && player.hp > 40) {
         
         let e = CreateEnemy();
-        e.framecount = 1;
+        e.framecount = 6;
         e.sprite = "Powercell";
         e.damage =  0;
             e.x = Math.random() * GameCanvas.width;
@@ -283,7 +313,23 @@ function TickGame() {
             e.ai =  PowercellAI;
             e.timer =  0;
     }
+    //dispersal powerup
+    if (Math.random() < 0.0000005) {
+        let e = CreatePowerup();
+            e.frame = 1;
+            e.framecount = 6;
+            framecount: 1,
+            e.sprite = "Dispersal";
+            e.x = Math.random() * GameCanvas.width;
+            e.y = Math.random() * GameCanvas.height;
+            width: 30,
+            height: 30,
+            color: "red",
+            ptype: poweruptype
+
+    }
     
+}
 }
 function norm(v) {
     let len = Math.sqrt(v[0] * v[0] + v[1] * v[1]);
@@ -360,12 +406,13 @@ function PowercellAI() {
         if (Math.random() < 0.01) {
              
         let e = CreateEnemy();
-        e.spite = "Easy.png";
+        e.sprite = "Easy";
+        e.framecount = 4;
         e.damage =  0;
             e.x = this.x;
             e.y = this.y;
-            e.width = 10,
-            e.height =  10;
+            e.width = 30,
+            e.height =  30;
             e.velocity = [Math.random() * 2 - 1, Math.random() * 2 - 1],
             e.color = "blue";
             e.ai =  EasyAI;
