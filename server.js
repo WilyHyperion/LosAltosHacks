@@ -14,8 +14,12 @@ app.get('/js/:filename', (req, res) => {
     res.sendFile(__dirname + '/js/' + req.params.filename);
 });
 app.get('/img/:filename', (req, res) => {
-    res.sendFile(__dirname + '/img/' + req.params.filename);
+    res.sendFile(__dirname + '/Img/' + req.params.filename);
 });
+app.get('/enemy/:filename', (req, res) => {
+    res.sendFile(__dirname + '/enemy/' + req.params.filename);
+});
+
 
 app.listen(3000);
 
