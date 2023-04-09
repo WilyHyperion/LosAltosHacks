@@ -19,6 +19,10 @@ app.get('/img/:filename', (req, res) => {
 app.get('/enemy/:filename', (req, res) => {
     res.sendFile(__dirname + '/enemy/' + req.params.filename);
 });
+app.get('/powerup/:filename', (req, res) => {
+    res.sendFile(__dirname + '/powerup/' + req.params.filename);
+});
+
 
 
 app.listen(3000);

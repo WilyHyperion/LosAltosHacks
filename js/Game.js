@@ -1,3 +1,4 @@
+    
 //get DPI
 let dpi = window.devicePixelRatio;
 ///enemy setup
@@ -46,7 +47,9 @@ function CreatePowerup(){
         width: 30,
         height: 30,
         color: "red",
-        ptype: poweruptype
+        pickup: function(){
+        },
+       // ptype: poweruptype
     });
     return Powerups[Powerups.length - 1];
     }
@@ -57,13 +60,11 @@ let playerFrames = [];
 for(let i = 1; i <= 4; i++){
     let frame = new Image();
     frame.src = "img/Player" + i + ".png";
-    console.log(frame.src);
+    
     frame.onload = function(){
-        console.log("loaded");
         playerFrames.push(frame);
     }
 }
-console.log(playerFrames);
 
 
 
@@ -99,10 +100,8 @@ window.addEventListener('DOMContentLoaded', function() {
 
     fix_dpi();
     onkeydown = onkeyup = function(e){
-        console.log("key pressed: " + e.keyCode );
         e = e || event; 
         downThisTick[e.keyCode] = e.type == 'keydown';
-        console.log(downThisTick);
     }
      GameContext = GameCanvas.getContext("2d");
      GameContext.webkitImageSmoothingEnabled = false;
@@ -110,6 +109,7 @@ window.addEventListener('DOMContentLoaded', function() {
      GameContext.imageSmoothingEnabled = false;
     function Update() {
         TickGame(); 
+        UpdatePowerups();
         UpdatePlayer();
         UpdateEnemies();
         player.color = "blue";
@@ -118,13 +118,25 @@ window.addEventListener('DOMContentLoaded', function() {
         GameContext.fillRect(0, 0, GameCanvas.width, GameCanvas.height);
         DrawEnemies();
         DrawPlayer();
+        DrawPowerUps();
        // ResetKeys();
     }
     setInterval(Update, 1000 / 120);
 });
+function DrawPowerUps(){
+    for(let v of Powerups){
+    }
+}
+
+function DrawPowerUps(){
+    for(let v of Powerups){
+        DrawPowerupImage(v);
+    }
+}
 function UpdatePlayer() {
     if(player.hp < 0){
         alert("You died");
+        window.location.reload();
         
     }
     if (downThisTick[97] || downThisTick[37] || downThisTick[65]) {
@@ -140,7 +152,13 @@ function UpdatePlayer() {
         player.y += player.speed;
     }
     SnapPlayerInside();
+    UpdatePlayerPowerups();
 
+}
+function UpdatePlayerPowerups(){
+    for(let i = 0; i < player.currentPowerups.length; i++){
+        player.currentPowerups[i].pickup();
+    }
 }
 function SnapPlayerInside() {
     if (player.x < 0) {
@@ -157,12 +175,25 @@ function SnapPlayerInside() {
         player.y = GameCanvas.height - player.height;
     }
 }
-
-function UpdateEnemies() {  
+function PlayerHasPowerup(powerup){
+    for(let i = 0; i < player.currentPowerups.length; i++){
+        if(player.currentPowerups[i].sprite == powerup){
+            return true;
+        }
+    }
+    return false;
+}
+function UpdateEnemies() { 
     for (let i = 0; i < Enemies.length; i++) {
         Enemies[i].x += Enemies[i].velocity[0];
         Enemies[i].y += Enemies[i].velocity[1];
-        Enemies[i].ai();
+        if(PlayerHasPowerup("Dispersal")){
+            Enemies[i].velocity = [Math.random() * 2 - 1, Math.random() * 2 - 1];
+            
+        }
+        else {
+            Enemies[i].ai();
+        }
         if (Enemies[i].x > GameCanvas.width || Enemies[i].x < 0 || Enemies[i].y > GameCanvas.height || Enemies[i].y < 0) {
             Enemies.splice(i, 1);
         }
@@ -186,28 +217,23 @@ function CheckForCollisions() {
 
 
 
-function DrawPowerups() {
-    for (let i = 0; i < Powerups.length; i++) {
-        DrawPowerupImage(Powerups[i]);
-    }
-}
+function DrawPowerupImage(powerup) {
+    let i = new Image();
+    i.src = "powerup/" + powerup.sprite + ".png";
+    GameContext.drawImage(i, powerup.x, powerup.y, powerup.width, powerup.height);
 
+}
 function UpdatePowerups() {  
-    for (let i = 0; i < Powerups.length; i++) {
-        
-        if (Powerups[i].x > GameCanvas.width || Powerups[i].x < 0 || Powerups[i].y > GameCanvas.height || Powerups[i].y < 0) {
-            Powerups.splice(i, 1);
-        }
-       
-    }
+
+    
     CheckForPowerupCollisions();
 }
 function CheckForPowerupCollisions() {
     for (let i = 0; i < Powerups.length; i++) {
         if (Powerups[i].x + Powerups[i].width > player.x && Powerups[i].x < player.x + player.width) {
             if (Powerups[i].y + Powerups[i].height > player.y && Powerups[i].y < player.y + player.height) {
-                ///add powerup to currently active powerup aray
-                player.currentPowerups.concat(Powerups[i]);
+                player.currentPowerups.push(Powerups[i]);
+                Powerups.splice(i, 1);
             }
         }
     }
@@ -286,7 +312,7 @@ function TickGame() {
         let e = CreateEnemy();
             e.framecount = 4;
             e.sprite = "Brute";
-            
+
             e.damage =  30;
             e.x = Math.random() * GameCanvas.width;
             e.y = Math.random() * GameCanvas.height;
@@ -314,22 +340,19 @@ function TickGame() {
             e.timer =  0;
     }
     //dispersal powerup
-    if (Math.random() < 0.0000005) {
+    if (Math.random() < 0.001) {
         let e = CreatePowerup();
             e.frame = 1;
-            e.framecount = 6;
-            framecount: 1,
+            e.framecount = 1;
             e.sprite = "Dispersal";
             e.x = Math.random() * GameCanvas.width;
             e.y = Math.random() * GameCanvas.height;
-            width: 30,
-            height: 30,
-            color: "red",
-            ptype: poweruptype
+            e.width = 30,
+            e.height =  30;
+            e.pickup =  DispersalPU;
 
     }
     
-}
 }
 function norm(v) {
     let len = Math.sqrt(v[0] * v[0] + v[1] * v[1]);
@@ -358,10 +381,15 @@ function DrawEnemyImage(e) {
     if (e.frame > e.framecount) {
         e.frame = 1;
     }
+    GameContext.save();
     let base_image = new Image();
+    GameContext.rotate(Math.PI);
+    GameContext.translate(e.x - e.width, e.y - e.height);
     base_image.src = 'enemy/' + e.sprite + e.frame + '.png';
     GameContext.drawImage(base_image, e.x, e.y, e.width, e.height);
+    GameContext.restore();
 }
+
 ///follow player every second
 function FastAI() {
     this.timer++;//increase the amount ticks we have been waiting
@@ -415,8 +443,8 @@ function PowercellAI() {
             e.height =  30;
             e.velocity = [Math.random() * 2 - 1, Math.random() * 2 - 1],
             e.color = "blue";
-            e.ai =  EasyAI;
             e.timer =  0;
+            e.ai =  EasyAI;
         }
     }
     
@@ -431,5 +459,26 @@ function EasyAI() {
         this.velocity[1] = (player.y - this.y);
         norm(this.velocity);//normalize the vector, so it shows the direction but not the length
         this.timer = 0;  //reset the timer
+    }
+}
+///confused from dispersal
+function ConfusedAI() {
+    this.timer++;//increase the amount ticks we have been waiting
+    if (this.timer > 30) {
+        //if we have waited for 240 or more ticks,
+        this.velocity[0] = (Math.random() * 2 - 1 - this.x); //get the diffrence
+        this.velocity[1] = (Math.random() * 2 - 1 - this.y);
+        norm(this.velocity);//normalize the vector, so it shows the direction but not the length
+        this.timer = 0;  //reset the timer
+    }
+}
+
+
+
+function DispersalPU(){
+    this.timer++;//increase the amount ticks we have been waiting
+    if (this.timer > 1000) {
+       Powerups.splice(
+        Powerups.indexOf(this) , 1)
     }
 }
