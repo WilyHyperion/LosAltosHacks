@@ -211,6 +211,7 @@ player = {
         DrawEnemies();
         DrawPlayer();
         DrawPowerUps(); 
+        DrawAllLines();
         Draw_UI(GameContext, player);
         requestAnimFrame(function() {
             Update();
@@ -233,6 +234,22 @@ function DrawPowerUps(){
     for(let v of Powerups){
         DrawPowerupImage(v);
     }
+}
+function DrawAllLines(){
+    for(let l of lines){
+     DrawL(l);
+     l.ticks--;
+     if(l.ticks <= 0){
+         lines.splice(lines.indexOf(l), 1);
+     }
+    }
+}
+function DrawL(l){
+    GameContext.beginPath();
+    GameContext.moveTo(l.x1, l.y1);
+    GameContext.lineTo(l.x2, l.y2);
+    GameContext.strokeStyle = l.color;
+    GameContext.stroke();
 }
 function UpdatePlayer() {
     if (downThisTick[97] || downThisTick[37] || downThisTick[65]) {
@@ -280,6 +297,17 @@ function PlayerHasPowerup(powerup){
     }
     return false;
 }
+let lines = [];
+function DrawLine(x1, y1, x2, y2, color, ticks) {
+    lines.push({
+        x1: x1,
+        y1: y1,
+        x2: x2,
+        y2: y2,
+        color: color,
+        ticks: ticks
+    });
+}
 function UpdateEnemies() { 
     
     for (let i = 0; i < Enemies.length; i++) {
@@ -301,6 +329,8 @@ function UpdateEnemies() {
         }
         let e = Enemies[i];
         //check if enemy is on an enemy
+    try {
+        
       for (let j = 0; j < Enemies.length; j++) {
         if (Enemies[j] == undefined) {
             continue;
@@ -324,6 +354,10 @@ function UpdateEnemies() {
             
         
     }
+    
+} catch (error) {
+        
+}
     }
     CheckForCollisions();
 }
@@ -394,7 +428,24 @@ function BossAI() {
         ScreenShake(10);
     }
     if(this.timer > 60 * 6){
+        if(this.timer % 60 == 0){
+            let attack = Math.round(Math.random() * 3);
+            switch(attack){
+                case 0:
+                    //TODO
+                    break;
+                case 1:
+                    //TODO
+                    break;
+                case 2:
+                    //TODO
+                    break;
+                case 3:
+                    //TODO
+                    break;
+        }
     }
+
 }
 let tick = 0;
 function TickGame() {
