@@ -363,6 +363,7 @@ function UpdateEnemies() {
     }
     CheckForCollisions();
 }
+}
 function CheckForCollisions() {
     for (let i = 0; i < Enemies.length; i++) {
         if (Enemies[i].x + Enemies[i].width > player.x && Enemies[i].x < player.x + player.width) {
@@ -448,6 +449,7 @@ function BossAI() {
         }
     }
 
+}
 }
 let tick = 0;
 function TickGame() {
@@ -634,6 +636,7 @@ function BasicAI() {
     }
 }
 function DrawEnemyImage(e) {  
+    try{
     e.framecounter++;
     if (e.framecounter > 10) {
         e.framecounter = 0;
@@ -652,6 +655,9 @@ function DrawEnemyImage(e) {
     GameContext.drawImage(base_image, e.x, e.y, e.width, e.height);
     }
     GameContext.restore();
+    }catch(e){
+        console.log(e);
+    }
 }
 
 ///follow player every second
@@ -725,7 +731,8 @@ function EasyAI() {
         norm(this.velocity);//normalize the vector, so it shows the direction but not the length
         this.timer = 0;  //reset the timer
     }
-}function BubbleAI() {
+}
+function BubbleAI() {
     this.rotation = RotationFromVelocity(this.velocity);
     
     this.timer++;//increase the amount ticks we have been waiting
@@ -789,5 +796,3 @@ function Draw_UI(_, _){
     GameContext.fillStyle = "blue";
     GameContext.fillRect(0,10    , (player.iframes/ 60) * player.maxHp * 10 ,10 );
 }
-
-//check if any enemies are being hovered
