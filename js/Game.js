@@ -167,7 +167,7 @@ player = {
     y: 0,
     width:  cavArea / 1000,
     height: cavArea / 1000,
-    speed: 4,
+    speed: 8,
     color: "blue",
     hp : 100,
     maxHp : 100,
@@ -281,10 +281,12 @@ function PlayerHasPowerup(powerup){
     return false;
 }
 function UpdateEnemies() { 
+    
     for (let i = 0; i < Enemies.length; i++) {
         if(Enemies[i] == undefined){
             continue;
         }
+        
         Enemies[i].x += Enemies[i].velocity[0];
         Enemies[i].y += Enemies[i].velocity[1];
         if(PlayerHasPowerup("Dispersal")){
@@ -297,7 +299,31 @@ function UpdateEnemies() {
         if (Enemies[i].x > GameCanvas.width || Enemies[i].x < 0 || Enemies[i].y > GameCanvas.height || Enemies[i].y < 0) {
             Enemies.splice(i, 1);
         }
-       
+        let e = Enemies[i];
+        //check if enemy is on an enemy
+      for (let j = 0; j < Enemies.length; j++) {
+        if (Enemies[j] == undefined) {
+            continue;
+        }
+        if (Enemies[j].x + Enemies[j].width > e.x && Enemies[j].x < e.x + e.width) {
+            if (Enemies[j].y + Enemies[j].height > e.y && Enemies[j].y < e.y + e.height) {
+                if (Enemies[j].x > e.x) {
+                    Enemies[j].x += 1;
+                }
+                else {
+                    Enemies[j].x -= 1;
+                }
+                if (Enemies[j].y > e.y) {
+                    Enemies[j].y += 1;
+                }
+                else {
+                    Enemies[j].y -= 1;
+                }
+            }
+        }
+            
+        
+    }
     }
     CheckForCollisions();
 }
@@ -625,7 +651,6 @@ function PowercellAI() {
 function EasyAI() {
     this.rotation = RotationFromVelocity(this.velocity);
     
-    console.log(this.rotation);
     this.timer++;//increase the amount ticks we have been waiting
     if (this.timer > 240) {
         //if we have waited for 240 or more ticks,
@@ -687,3 +712,5 @@ function Draw_UI(_, _){
     GameContext.fillStyle = "blue";
     GameContext.fillRect(0,10    , (player.iframes/ 60) * player.maxHp * 10 ,10 );
 }
+
+//check if any enemies are being hovered
