@@ -1,12 +1,12 @@
 # Aquarium Evasion
 
-Have *you* ever wanted to ever reanact the life of fish food? Well now you can! In Aquarium Evasion, you can play as fish food while fish (and rocks and other things) try and eat you! Comes with *super realism*! (no it doesn't).
+Have *you* ever wanted to ever reeanact the life of fish food? Well now you can! In Aquarium Evasion, you can play as fish food while fish (and rocks and other things) try and eat you! Comes with *super realism*! (no it doesn't).
 
 ### In-depth info
 - Enemies
   - Basic - Simply moves twoards you. Has some trouble finding you.
   - Brute - Slow, big, and deals a lot of damage. Has no trouble finding you.
-  - Fast - Quiet quick. Though, can't really find you easily.
+  - Fast - Quite quick. Though, can't really find you easily.
   - Power Cell - Super slow, spawns Cell Fish, deals 0 damage. Has no interest in finding you.
   - Cell Fish - Weaker than basic, usually spawned by Power Cell. Has some trouble finding you. 
   - Rouge - Disappears occasionally, kinda slow. Barely has trouble finding you.
