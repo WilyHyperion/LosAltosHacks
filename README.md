@@ -1,7 +1,8 @@
 # Aquarium Evasion
 
 Have *you* ever wanted to ever reeanact the life of fish food? Well now you can! In Aquarium Evasion, you can play as fish food while fish (and rocks and other things) try and eat you! Comes with *super realism*! (no it doesn't).
-
+## DEMO:
+<a href="https://the-ducks-code.github.io/AquariumEvasionNodeless/">Aquarium Evasion Nodeless</a>
 ### In-depth info
 - Enemies
   - Basic - Simply moves twoards you. Has some trouble finding you.
@@ -10,6 +11,7 @@ Have *you* ever wanted to ever reeanact the life of fish food? Well now you can!
   - Power Cell - Super slow, spawns Cell Fish, deals 0 damage. Has no interest in finding you.
   - Cell Fish - Weaker than basic, usually spawned by Power Cell. Has some trouble finding you. 
   - Rouge - Disappears occasionally, kinda slow. Barely has trouble finding you.
+  - Bouncy - Bounces around the screen, somewhat fast, does not target you.
 - Power ups
   - Health - Heals you a little. Can go past maximum.
   - Fast - Speeds you up a little. Maybe it's not a good thing 🤔?
@@ -23,6 +25,14 @@ Have *you* ever wanted to ever reeanact the life of fish food? Well now you can!
       - Dash - Aims and rushes at the player, leaving a spike behind
     - Kill Mechanism
       - Spikes can be used (by swimming on them) to launch fish food at the Fisherman's soul. If the soul is hit 3 times, it dies.
+  - Fish Summoner
+    - Attack Mechanisms
+      - Fast Spawn - Spawns 3 Fast fish.
+      - Powercell Spawn  - Spawns 3 Powercells.
+      - Brute Spawn - Spawns 3 Brutes.
+      - Dash - Aims and rushes at the player, leaving a spike behind
+    - Kill Mechanism
+      - Spikes can be used (by swimming on them) to launch fish food at the Fish Summoner. If the Summoner is hit 4 times, it dies.
 - Progression 
   - Your score increases every second you're alive. Your score affects a multitde of factors.
     - Speed of enemies

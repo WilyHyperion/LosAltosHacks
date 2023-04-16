@@ -19,13 +19,18 @@
         background-image: linear-gradient(#2532a5 50%, #737ee4);
         background-attachment: fixed;
         font-family: 'Press Start 2P', sans-serif;
-        
+         
     }
     h1{
         font-size: 50px;
     }
     h2{
         font-size: 30px;
+    }
+    a{
+        text-decoration:none;
+        font-size:10px;
+        font-style:normal;
     }
     #info{
         opacity: 0;
@@ -131,7 +136,7 @@
     <div style="text-align: center; cursor: default"> 
         <h1 id = "title">Aquarium Evasion</h1> 
         <div style="margin: auto;"> <p id = "info">Click on start to begin the game.</p> </div>
-        <h2 id="start" style="cursor:pointer"onclick="window.location = '/game'">Start</h2>
+        <h2 id="start" style="cursor:pointer"onclick="window.location = 'game.html'">Start</h2>
         <br>
         <div><h3>Global High Score: <p id = "hscore" ></p></h3></div>
     </div>
@@ -139,11 +144,16 @@
     <div style="position: absolute; bottom: 0; right: 0; margin: 10px; transform: translateY(0deg)">
       <a href="https://github.com/WilyHyperion/LosAltosHacks">
         <img id="github" src="Img/github-mark-white.png" alt="github" width="30" height="30">
+        <p>Node.js Version</p>
+      </a>
+      <a href="https://github.com/The-Ducks-Code/AquariumEvasionNodeless">
+        <img id="github" src="Img/github-mark-white.png" alt="github" width="30" height="30">
+        <p>Nodeless Version</p>
       </a>
     </div>
     <!-- div at absolute bottom center of page -->
     <div style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); margin: -6px;">
-      <h2 id="leaderboard" style="cursor:pointer;" onclick="window.location = '/leaderboard'">Leaderboard</h2>
+        <h2 id="leaderboard" style="cursor:pointer;" onclick="window.location = '/leaderboard'">Leaderboard</h2>
     </div>
     
     
