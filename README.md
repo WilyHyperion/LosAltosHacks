@@ -2,7 +2,7 @@
 
 Have *you* ever wanted to ever reeanact the life of fish food? Well now you can! In Aquarium Evasion, you can play as fish food while fish (and rocks and other things) try and eat you! Comes with *super realism*! (no it doesn't).
 ## DEMO:
-<a href="https://the-ducks-code.github.io/AquariumEvasionNodeless/">Aquarium Evasion Nodeless</a>
+<a href="https://aquarium-evasion.glitch.me/">Aquarium Evasion Nodeless</a>
 ### In-depth info
 - Enemies
   - Basic - Simply moves twoards you. Has some trouble finding you.
